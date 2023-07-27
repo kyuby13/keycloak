@@ -1,0 +1,97 @@
+version: '2'
+
+networks:
+  frontend:
+    name: frontend
+  storage:
+    name: storage
+
+volumes:
+  proxy-keycloak-data-volume:
+  proxy-postgres_data:
+      driver: local
+  data-elasticsearch:
+  data-mongo:
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    # image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf:/etc/nginx/conf.d
+      - ./vhost:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - ./certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    restart: always
+    # network_mode: bridge
+    networks:
+      - frontend
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-acme
+    environment:
+      - DEFAULT_EMAIL=mamat08nurahmat@gmail.com
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - ./certs:/etc/nginx/certs:rw
+      - ./acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+    # network_mode: bridge
+    networks:
+      - frontend
+  postgres:
+      image: postgres
+      restart: always
+      networks:
+        - storage
+      volumes:
+        - proxy-postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+  keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      restart: always
+      networks:
+        - frontend
+        - storage
+      volumes:
+        - proxy-keycloak-data-volume:/opt/keycloak/data
+        # - keycloak-data-volume:/var/lib/keycloak/data
+      environment:
+        VIRTUAL_PORT: 8080
+        VIRTUAL_HOST: domain-name
+        LETSENCRYPT_HOST: domain-name
+        DB_VENDOR: POSTGRES
+        DB_ADDR: postgres
+        DB_DATABASE: keycloak
+        DB_USER: keycloak
+        DB_SCHEMA: public
+        DB_PASSWORD: password
+        KEYCLOAK_USER: admin
+        KEYCLOAK_PASSWORD: admin
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+        KEYCLOAK_FRONTEND_URL: https://domain-name/auth
+        KC_PROXY_ADDRESS_FORWARDING: "true"
+        KC_HOSTNAME_STRICT: "false"
+        KC_HOSTNAME_STRICT_HTTPS: "false"
+        KC_HTTP_ENABLED: "true"
+        KC_PROXY: edge
+        KC_HOSTNAME_ADMIN_URL: https://domain-name
+        KC_HOSTNAME: domain-name
+      entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start"]
+      # ports:
+      #   - 8080:8080
+      depends_on:
+        - postgres
