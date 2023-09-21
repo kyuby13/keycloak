@@ -1,0 +1,21 @@
+https://github.com/lukin/keywind/tree/master
+https://codeanystuff.com/how-to-custom-themes-for-keycloak/
+
+Cara aktifkan theme
+
+masuk ke docker 
+
+docker exec -it container bash
+
+/opt/keycloak/bin/kc.sh build
+/opt/keycloak/bin/kc.sh show-config
+
+--------------
+matikan docker
+docker-compose stop
+
+Jalankan lagi
+docker-compose up -d
+
+--------------
+Ganti theme -> login theme -> keywaind

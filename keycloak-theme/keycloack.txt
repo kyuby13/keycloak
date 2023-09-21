@@ -1,0 +1,58 @@
+more docker-compose.yml
+version: '3'
+
+volumes:
+  keycloak_data_new:
+  postgres_data_new:
+      driver: local
+
+services:
+  postgres:
+      image: postgres
+      restart: always
+      volumes:
+        - postgres_data_new:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+  keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      restart: always
+      volumes:
+        - keycloak_data_new:/opt/keycloak/data
+        - ./theme:/opt/keycloak/providers
+      environment:
+        DB_VENDOR: POSTGRES
+        DB_ADDR: postgres
+        DB_DATABASE: keycloak
+        DB_USER: keycloak
+        DB_SCHEMA: public
+        DB_PASSWORD: password
+        KEYCLOAK_USER: admin
+        KEYCLOAK_PASSWORD: admin
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: admin
+        KEYCLOAK_FRONTEND_URL: https://keycloak.loyalto.id/auth
+        KC_PROXY_ADDRESS_FORWARDING: "true"
+        KC_HOSTNAME_STRICT: "false"
+        KC_HOSTNAME_STRICT_HTTPS: "false"
+        KC_HTTP_ENABLED: "true"
+        KC_HEALTH_ENABLED: "true"
+        KC_METRICS_ENABLED: "true"
+        KC_PROXY: edge
+        KC_HOSTNAME_ADMIN_URL: https://keycloak.loyalto.id
+        KC_HOSTNAME: keycloak.loyalto.id
+      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start"]
+      entrypoint: ["/opt/keycloak/bin/kc.sh", "start --optimized"]
+      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start  --metrics-enabled --health-enable"]
+      ports:
+        - 8080:8080
+      depends_on:
+        - postgres
+      #healthcheck:
+        #test: ["CMD", "curl", "-f", "http://localhost:8080/auth"]
+        #interval: 5s
+        #timeout: 2s
+        #retries: 15
