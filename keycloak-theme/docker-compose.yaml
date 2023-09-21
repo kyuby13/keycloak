@@ -33,7 +33,7 @@ services:
         KEYCLOAK_PASSWORD: admin
         KEYCLOAK_ADMIN: admin
         KEYCLOAK_ADMIN_PASSWORD: admin
-        KEYCLOAK_FRONTEND_URL: https://keycloak.loyalto.id/auth
+        KEYCLOAK_FRONTEND_URL: https://keycloak.games.id/auth
         KC_PROXY_ADDRESS_FORWARDING: "true"
         KC_HOSTNAME_STRICT: "false"
         KC_HOSTNAME_STRICT_HTTPS: "false"
@@ -41,8 +41,8 @@ services:
         KC_HEALTH_ENABLED: "true"
         KC_METRICS_ENABLED: "true"
         KC_PROXY: edge
-        KC_HOSTNAME_ADMIN_URL: https://keycloak.loyalto.id
-        KC_HOSTNAME: keycloak.loyalto.id
+        KC_HOSTNAME_ADMIN_URL: https://keycloak.games.id
+        KC_HOSTNAME: keycloak.games.id
       #entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
       #entrypoint: ["/opt/keycloak/bin/kc.sh", "start"]
       entrypoint: ["/opt/keycloak/bin/kc.sh", "start --optimized"]
