@@ -39,8 +39,8 @@ services:
         KC_PROXY: edge
         KC_HOSTNAME_ADMIN_URL: https://domain-name
         KC_HOSTNAME: domain-name
-      entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
-      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start"]
+      #entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev"]
+      entrypoint: ["/opt/keycloak/bin/kc.sh", "start --optimized"]
       ports:
         - 8080:8080
       depends_on:
